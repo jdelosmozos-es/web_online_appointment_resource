@@ -1,5 +1,5 @@
 eclipse.preferences.version=1
-encoding//controllers/main.py=utf-8
-encoding//models/calendar.py=utf-8
+encoding//web_online_appointment_resource/__manifest__.py=utf-8
+encoding//web_online_appointment_resource/controllers/main.py=utf-8
+encoding//web_online_appointment_resource/models/calendar.py=utf-8
 encoding/<project>=UTF-8
-encoding/__manifest__.py=utf-8
