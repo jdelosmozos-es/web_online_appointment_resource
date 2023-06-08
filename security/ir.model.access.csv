@@ -1,0 +1,8 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_web_online_appointment,access_web_online_appointment,model_web_online_appointment,,1,1,1,1
+access_web_online_appointment_line,access_web_online_appointment_line,model_web_online_appointment_line,,1,1,1,1
+access_web_online_appointment_holidays,access_web_online_appointment_holidays,model_web_online_appointment_holidays,base.group_user,1,1,1,1
+access_web_online_appointment_weekoff,access_web_online_appointment_weekoff,model_web_online_appointment_weekoff,base.group_user,1,1,1,1
+access_resource_appointment_space_user,access.resource.appointment.space.user,model_appointment_space,base.group_user,1,1,0,0
+access_resource_appointment_space_manager,access.resource.appointment.space.manager,model_appointment_space,group_appointment_manager,1,1,1,1
+access_resource_resource_manager,access.resource.appointment.resource,resource.model_resource_resource,group_appointment_manager,1,1,1,1

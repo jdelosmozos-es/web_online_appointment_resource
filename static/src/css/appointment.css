@@ -1,0 +1,217 @@
+.btn-user {
+    /*background-color: #fa5757 !important;
+    color: white !important;*/
+}
+@media screen and (min-width: 768px){
+    .datepicker-days table{
+        width: 540px !important;
+        font-size: 16px !important;
+    }
+}
+.hero-unit .table-condensed{
+    font-size: 16px !important;
+    height: 320px;
+}
+
+.fix-panel .modal-title.big {
+    margin-bottom: 5px;
+    text-transform: uppercase;
+    font-size: 16px;
+    color: #000;
+    margin: 0;
+    line-height: 1.42857;
+    padding-top: 1%;
+}
+.calendar ul{
+    list-style: none;
+}
+.calendar-wrap .calendar .month {
+    padding: 10px 0;
+    width: 100%;
+}
+.calendar-wrap .calendar .month ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+.calendar .month ul li {
+    font-size: 16px;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+}
+.calendar .month .prev ,  .calendar .month .next{
+    float: left;
+    border-radius: 50%;
+    width: 25px;
+    height: 25px;
+    line-height: 24px;
+    text-align: center;
+    cursor: pointer;
+    background-color: #dcdcdc;
+}
+.calendar .month .next {
+    float: right;
+}
+.calendar .month ul li.month-txt {
+    text-align: center;
+}
+.calendar .month ul li {
+    font-size: 16px;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+}
+.calendar .weekdays {
+    margin: 0;
+    padding: 10px 0 5px;
+}
+.calendar .weekdays li {
+    margin: 0 1%;
+    display: inline-block;
+    width: 11.6%;
+    text-align: center;
+    text-transform: uppercase;
+}
+.calendar .days {
+    padding: 10px 0 0;
+    margin: 0;
+}
+.calendar .days li {
+    margin: 0 .5% 5px;
+    position: relative;
+    list-style-type: none;
+    display: inline-block;
+    width: 13%;
+    text-align: center;
+    font-size: 12px;
+    line-height: 35px;
+    height: 45px;
+    cursor: pointer;
+    vertical-align: top;
+}
+.calendar .days li a {
+    padding: 5px;
+    display: block;
+    /*-webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    -ms-border-radius: 3px;*/
+    border-radius: 3px;
+    text-decoration: none !important;
+}
+.calendar .days li.available a {
+    color: #4d4d4d;
+    border: 1px solid #dcdcdc;
+    text-decoration: none !important;
+}
+.calendar .days li a:hover {
+    background-color: #dcdcdc;
+    text-decoration: none !important;
+}
+.calendar .days li.active a {
+    font-size: 20px !important;
+    color: #fff !important;
+    background: #4a74d0 !important;
+    text-decoration: none !important;
+}
+
+/*-------3. Select Time----*/
+.time-slots .tabs-wrap {
+    border-bottom: 1px solid #dcdcdc;
+    margin-bottom: 15px;
+}
+.time-slots {
+    margin-bottom: 15px;
+}
+.time-slots .tag-styles span {
+    margin-right: 10px;
+    width: auto;
+    float: left;
+    text-align: center;
+    margin-bottom: 10px !important;
+}
+.time-slots .tag-styles {
+    padding: 0 40px;
+    position: relative;
+}
+.tag-styles span {
+    padding: 0 20px;
+    position: relative;
+    margin-right: 5px;
+    display: inline-block;
+    vertical-align: top;
+    line-height: 36px;
+    cursor: pointer;
+    font-size: 16px;
+    border: 1px solid #757575;
+    border-radius: 20px;
+    max-width: 180px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-bottom: 5px !important;
+}
+.tag-styles span.selected, .tag-styles span:hover {
+    color: #fff;
+    border-color: #0044cc;
+    background: #0044cc !important;
+}
+.slick-slide {
+    /*float: left;*/
+    height: 100%;
+    min-height: 1px;
+    /*display: none;*/
+}
+
+/*--------------section4------*/
+#done{
+    padding-top: 5%;
+    padding-bottom: 5%;
+}
+.booked-for .modal-title {
+    color: #4d4d4d;
+    font-size: 14px;
+}
+.modal-title.big {
+    margin-bottom: 5px;
+    text-transform: uppercase;
+    font-size: 16px;
+}
+.booked-for .modal-title span {
+    font-family: roboto-bold;
+}
+.booked-for .btn-lg {
+    min-width: inherit;
+}
+#done .btn-lg {
+    padding: 12px 20px;
+    font-size: 16px;
+}
+#done .btn-default {
+    background-color: #0044cc;
+    color: white;
+}
+.datepicker thead tr:first-child th:hover, .datepicker tfoot tr:first-child th:hover{
+    background: #0044cc !important;
+    color: white !important;
+}
+.datepicker thead tr:first-child th, .datepicker tfoot tr:first-child th{
+    background: #eeeeee !important;
+}
+.datepicker table tr td.active.active, .datepicker table tr td.active:hover.active{
+    background: #0044cc !important;
+}
+.datepicker table tr td.day:hover {
+    background: #0044cc !important;
+    cursor: pointer;
+}
+.datepicker th {
+    text-align: center;
+    width: 20px;
+    height: 20px;
+    /*-webkit-border-radius: 4px;
+    -moz-border-radius: 4px;*/
+    border-radius: 10px !important;
+    border: none;
+}
+/*.datepicker thead tr th{
+    background: #eeeeee !important;
+}*/

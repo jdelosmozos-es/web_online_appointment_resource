@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record model='ir.ui.view' id='view_web_online_appointment_form'>
+        <field name='name'>view.web.online.appointment.from</field>
+        <field name='model'>web.online.appointment</field>
+        <field name='arch' type='xml'>
+            <form string="Web Online Appointment">
+                <sheet>
+                    <h1>
+                        <field name="name" />
+                    </h1>
+                    <group col="4">
+                    	<field name="space"/>
+                    	<field name="capacity"/>
+                    </group>
+                    <notebook>
+                        <page string="Web Online Appointment">
+                            <group>
+                                <group>
+                                    <field name="tz" required="1" readonly="1" />
+                                    <field name="minutes_slot" />
+                                    <field name="alarm_ids" widget="many2many_tags" />
+                                </group>
+                                <group>
+                                    <field name="start_date" />
+                                    <field name="start_time" widget="float_time" />
+                                    <field name="end_time" widget="float_time" />
+                                    <field name="duration" />
+                                </group>
+                            </group>
+                            <group>
+                                <field name='calendar_line_ids' nolabel="1">
+                                    <tree string="Calendar Lines" editable="bottom">
+                                        <field name='start_datetime' />
+                                        <field name='end_datetime' />
+                                        <field name='duration' />
+                                        <field name='capacity'/>
+                                        <field name='occupancy'/>
+                                        <field name='availability'/>
+                                    </tree>
+                                </field>
+                            </group>
+                        </page>
+                        <page string="Other Info" name="other_info">
+                            <group string="Holidays">
+                                <field name='holiday_ids' nolabel="1">
+                                    <tree string="Holidays" editable="bottom">
+                                        <field name='name' />
+                                        <field name='jt_start_date' />
+                                        <field name='jt_end_date' />
+                                    </tree>
+                                </field>
+                            </group>
+                            <group string="Weekoff">
+                                <field name="weekoff_ids" widget="many2many_tags" />
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    <record model='ir.ui.view' id='view_web_online_appointment_tree'>
+        <field name='name'>view.web.online.appointment.tree</field>
+        <field name='model'>web.online.appointment</field>
+        <field name='arch' type='xml'>
+            <tree string='Web Online Appointment'>
+                <field name='name' />
+                <field name="tz" required="1" readonly="1" />
+                <field name="minutes_slot" />
+            </tree>
+        </field>
+    </record>
+    <record id="action_appointmnet_calendar" model="ir.actions.act_window">
+        <field name="name">Web Online Appointment</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">web.online.appointment</field>
+        <field name="view_mode">tree,form</field>
+        <field name="view_id" ref="view_web_online_appointment_tree" />
+    </record>
+    <menuitem id="menu_apppointment_calendar" name="My Appointments" sequence="1" />
+    <menuitem id="menu_apppointment_calendar_second_menu" parent="menu_apppointment_calendar" name="Calendar" sequence="1" action="calendar.action_calendar_event" />
+    <menuitem id="menu_apppointment_config" name="Configuration" sequence="2" parent="menu_apppointment_calendar" />
+    <menuitem id="menu_exception_calendar_submenu" name="Calendar Configuration" parent="menu_apppointment_config" action="web_online_appointment_resource.action_appointmnet_calendar" sequence="1" />
+</odoo>

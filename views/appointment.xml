@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+	
+	<template id="appointment_intro_persons" name="Persons">
+		<t t-call="website.layout">
+			<t t-set="current_subtotal" t-value="0"/>
+			<div id="wrap">
+                <div class="container oe_website_sale py-2">
+                	<div class="col-md-12 mt32 text-center oe_structure">
+                        <h3>WE WHOULD LOVE TO TALK TO YOU!</h3>
+                        <p>At <span t-esc="website.sudo().user_id.company_id.name" /> <span class="oe_structure">we value your openion.If you have any questions, suggestions or concerns please feel free to contact us through mail, email or our main phone number.Don't forget to follow us on the social websites we belogns to.</span></p>
+                    </div>
+                    <form class="form-horizontal pt16 pb16" t-attf-action="/appointment/member" method="POST">
+                    	<input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
+                    	<input type="hidden" name="max_capacity" t-att-value="max_capacity" />
+                        <div class="form-group row">
+                        <!--
+                            <label class="col-sm-2 col-form-label">Max. capacity:</label>
+                            <div class="col-sm-10">
+                            	<input name="max_capacity" t-att-value="max_capacity" readonly=""/>
+                            </div>
+                            -->
+                            <label class="col-sm-2 col-form-label">* Number of persons:</label>
+                            <div class="col-sm-10">
+                                <input name="num_persons" type="text" class="form-control" required="" t-attf-placeholder="Max. #{max_capacity}"/>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="offset-md-2 col-sm-8">
+                                <button type="submit" class="btn btn-primary">Send</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </t>
+    </template>
+    
+    <template id="appointment_select_space" name="Spaces">
+        <t t-call="website.layout">
+            <div class="oe_structure" />
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-10 col-md-offset-1 mt32 mb32 text-center">
+                        <h3>BOOKINGS</h3>
+                    </div>
+                    <div class="col-sm-12 col-md-4 col-lg-4 pt16 pb32" t-foreach="spaces" t-as="space">
+                        <div class="card">
+                            <div class="row no-gutters">
+                                <div class="col-sm-5" style="background: #868e96;">
+                                    <img t-if="space.image_1920" class="card-img-top h-100" t-att-src="image_data_uri(space.image_1920)" />
+                                    <img t-else="" class="card-img-top h-100" src="/web_online_appointment_resource/static/src/img/not_set_image.png" />
+                                </div>
+                                <div class="col-sm-7">
+                                    <div class="card-body">
+                                        <h5 class="card-title"><strong t-esc="space.name"></strong></h5>
+                                        <a class="btn btn-primary stretched-link" id="select_space" t-attf-href="/appointment/member/#{space.id}/#{space.calendar_id.id}/#{num_persons}">
+                                            Select
+                                            <i class="fa fa-chevron-circle-right"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+    <template id="appointment_member_calendar" name="Member Calendar">
+        <t t-call="website.layout">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-10 col-md-offset-1 mt32 mb32 text-center">
+                        <h3>BOOKING CALENDAR</h3>
+                    </div>
+                    <div class="col-md-6 col-sm-3 col-lg-6 col-xs-3 calendar-wrap its-newsss">
+                        <div style="overflow:hidden;">
+                            <div class="container">
+                                <h4 class="modal-title big">1. Select Date</h4>
+                                <div class="hero-unit">
+                                    <div class="date_time_set_customer">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-sm-6 calendar-wrap its-newsss" id="time_slots">
+                        <div class="overlay"></div>
+                        <div class="fix-panel">
+                            <div class="tabs-wrap mb32">
+                                <h4 class="modal-title big">2. Select time</h4>
+                                <div class="clear"></div>
+                            </div>
+                            <div class="tab-content time_data_break">
+                                <div class="tab-pane fade in active show" id="breakfast">
+                                    <div class="tag-styles time" id="time">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-10 col-sm-8 mt32">
+                            <h4 class="modal-title big marginT10">
+                                <span id="book_table">You are booking on</span>
+                                <strong><span id="selectedDate1" name="selectedDate1"> </span> </strong>
+                                <strong><span id="selectedTime1" name="selectedTime1"> </span></strong>
+                            </h4>
+                        </div>
+                    </div>
+                </div>
+                <div class="booked-for" id="done">
+                    <div class="row">
+                        <div class="col-6"></div>
+                        <div class="col-6">
+                            <form t-attf-action="/appointment/book" method="POST">
+                                <input type="hidden" id="selectedDate" name="selectedDate" />
+                                <input type="hidden" id="selectedTime" name="selectedTime" />
+                                <input type="hidden" id="space_id" name="space_id" t-att-value="space_id" />
+                                <input type="hidden" id="num_persons" name="num_persons" t-att-value="num_persons" />
+                                <input type="hidden" name="calendar_id" id="calendar_id" t-att-value="calendar_id" />
+                                <input type="hidden" id="minutes_slot" name="minutes_slot" t-att-value="minutes_slot" />
+                                <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
+                                <!-- <div class="col-md-10 col-sm-8 paddingR0">
+                                        <h4 class="modal-title big marginT10">
+                                            <span id="book_table">You are booking on</span>
+                                            <strong><span id="selectedDate1" name="selectedDate1"> </span> </strong> 
+                                            <strong><span id="selectedTime1" name="selectedTime1"> </span></strong>
+                                        </h4>
+                                    </div> -->
+                                <div class="col-md-offset-6 col-md-4 col-sm-4" id="done_button">
+                                    <button type="submit" class="btn btn-default btn-block btn-lg">Done</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+    <template id="appointment_book" name="Booking">
+        <t t-call="website.layout">
+            <div id="wrap">
+                <div class="container oe_website_sale py-2">
+                    <form class="form-horizontal pt16 pb16" t-attf-action="/appointment/book/confirm" method="POST">
+                        <input type="hidden" name="start_datetime" t-att-value="start_datetime" />
+                        <input type="hidden" name="duration" t-att-value="duration" />
+                        <input type="hidden" name="start" t-att-value="start" />
+                        <input type="hidden" name="stop" t-att-value="stop" />
+                        <input type="hidden" name="space_id" t-att-value="space.id" />
+                        <input type="hidden" name="calendar_id" t-att-value="calendar_id" />
+                        <input type="hidden" name="booking_time" t-att-value="booking_time" />
+                        <input type="hidden" name="minutes_slot" t-att-value="minutes_slot" />
+                        <input type="hidden" id="num_persons" name="num_persons" t-att-value="num_persons" />
+                        <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
+                        <div class="form-group row">
+                            <label class="col-sm-2 col-form-label">Appointment:</label>
+                            <label class="col-sm-10 col-form-label"><strong>
+                                    <t t-esc="booking_time" /> in
+                                    <t t-esc="space.name" /></strong></label>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-2 col-form-label">Num. persons:</label>
+                            <label class="col-sm-10 col-form-label"><strong>
+                                    <t t-esc="num_persons"/></strong></label>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-2 col-form-label">* Phone Number:</label>
+                            <div class="col-sm-10">
+                            	<t t-if="phone!=False">
+                            		<input name="phone" type="text" class="form-control" t-attf-value="#{phone}" readonly="" />
+                            	</t>
+                            	<t t-else="">
+                                	<input name="phone" type="text" class="form-control" required="" />
+                                </t>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-2 col-form-label">* Name:</label>
+                            <div class="col-sm-10">
+                            	<t t-if="name!=False">
+                            		<input name="name" type="text" class="form-control" t-attf-value="#{name}" readonly="" />
+                            	</t>
+                            	<t t-else="">
+                                	<input name="name" type="text" class="form-control" required="" />
+                                </t>
+                            </div>
+                        </div>
+                        <div class="form-group row" id="email">
+                            <label class="col-sm-2 col-form-label">* Email:</label>
+                            <div class="col-sm-10">
+                            	<t t-if="email!=False">
+                            		<input name="email" type="text" class="form-control" t-attf-value="#{email}" readonly="" />
+                            	</t>
+                            	<t t-else="">
+                                	<input name="email" type="email" class="form-control" required="" />
+                                </t>
+                            </div>
+                        </div>
+                        <div class="form-group row" id="comments">
+                            <label class="col-sm-2 col-form-label">* Comments:</label>
+                            <div class="col-sm-10">
+                                <input name="comments" type="text" class="form-control" placeholder="Additional requirements like vegan, alergic, etc." />
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="offset-md-2 col-sm-8">
+                                <button type="submit" class="btn btn-primary">Confirm Booking</button>
+                                <a href="/appointment/member" class="btn btn-secondary">Cancel</a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </t>
+    </template>
+    <template id="appointment_thankyou" name="Confirmed Booking">
+        <t t-call="website.layout">
+            <div id="wrap">
+                <div class="container oe_website_sale pt16 py-2">
+                    <div class="alert alert-success" role="alert">
+                        <p>Thank You <strong>
+                                <t t-esc="first_name" /></strong></p>
+                        <p>Your appointment is booked for <strong>
+                                <t t-esc="booking_time" /> in
+                                <t t-esc="space.name" /></strong></p>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+</odoo>
