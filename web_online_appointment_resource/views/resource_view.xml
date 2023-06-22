@@ -23,7 +23,6 @@
                     <field name="image_1920" widget="image" class="oe_avatar"/> <!-- options="{&quot;preview_image&quot;: &quot;avatar_128&quot;}"/> -->
             		<group col="4">
             			<field name="capacity"/>
-            			<field name="event_duration_minutes"/>
             		</group>
             		<separator string="Description"/>
                     <field name="note" nolabel="1" placeholder="Description of space..."/>

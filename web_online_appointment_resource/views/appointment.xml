@@ -54,7 +54,7 @@
                                 <div class="col-sm-7">
                                     <div class="card-body">
                                         <h5 class="card-title"><strong t-esc="space.name"></strong></h5>
-                                        <a class="btn btn-primary stretched-link" id="select_space" t-attf-href="/appointment/member/#{space.id}/#{space.calendar_id.id}/#{num_persons}">
+                                        <a class="btn btn-primary stretched-link" id="select_space" t-attf-href="/appointment/member/#{space.id}/#{num_persons}">
                                             Select
                                             <i class="fa fa-chevron-circle-right"></i>
                                         </a>
@@ -117,8 +117,8 @@
                                 <input type="hidden" id="selectedTime" name="selectedTime" />
                                 <input type="hidden" id="space_id" name="space_id" t-att-value="space_id" />
                                 <input type="hidden" id="num_persons" name="num_persons" t-att-value="num_persons" />
-                                <input type="hidden" name="calendar_id" id="calendar_id" t-att-value="calendar_id" />
-                                <input type="hidden" id="minutes_slot" name="minutes_slot" t-att-value="minutes_slot" />
+<!--                                <input type="hidden" name="calendar_id" id="calendar_id" t-att-value="calendar_id" />
+                                <input type="hidden" id="minutes_slot" name="minutes_slot" t-att-value="minutes_slot" /> -->
                                 <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
                                 <!-- <div class="col-md-10 col-sm-8 paddingR0">
                                         <h4 class="modal-title big marginT10">
@@ -143,13 +143,9 @@
                 <div class="container oe_website_sale py-2">
                     <form class="form-horizontal pt16 pb16" t-attf-action="/appointment/book/confirm" method="POST">
                         <input type="hidden" name="start_datetime" t-att-value="start_datetime" />
-                        <input type="hidden" name="duration" t-att-value="duration" />
                         <input type="hidden" name="start" t-att-value="start" />
-                        <input type="hidden" name="stop" t-att-value="stop" />
                         <input type="hidden" name="space_id" t-att-value="space.id" />
-                        <input type="hidden" name="calendar_id" t-att-value="calendar_id" />
                         <input type="hidden" name="booking_time" t-att-value="booking_time" />
-                        <input type="hidden" name="minutes_slot" t-att-value="minutes_slot" />
                         <input type="hidden" id="num_persons" name="num_persons" t-att-value="num_persons" />
                         <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
                         <div class="form-group row">

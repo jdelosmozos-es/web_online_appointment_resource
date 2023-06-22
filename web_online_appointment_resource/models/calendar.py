@@ -1,33 +1,19 @@
 # -*- coding: utf-8 -*-
 
-import pytz
 from datetime import datetime, timedelta
 from odoo import api, fields, models, _
 from odoo.exceptions import ValidationError
+import pytz
 
 TIME_FORMAT = '%Y-%m-%d %H:%M:%S'
-
-@api.model
-def _tz_get(self):
-    # put POSIX 'Etc/*' entries at the end to avoid confusing users - see bug 1086728
-    return [(tz, tz) for tz in sorted(pytz.all_timezones, key=lambda tz: tz if not tz.startswith('Etc/') else '_')]
 
 class WebOnlineAppointment(models.Model):
     _name = 'web.online.appointment'
     _description = 'Web Online Appointment'
 
-    def get_tz_offset(self, name):
-        return datetime.now(pytz.timezone(name or self.env.user.tz)).strftime('%z')
-
     name = fields.Char()
-    space = fields.Many2one(comodel_name='appointment.space')
+    space = fields.Many2one(comodel_name='appointment.space', required=True)
     capacity = fields.Integer(related='space.capacity')
-    tz = fields.Selection(_tz_get, string='Timezone', default=lambda self: self._context.get('tz'),
-                          help="The partner's timezone, used to output proper date and time values "
-                               "inside printed reports. It is important to set a value for this field. "
-                               "You should use the same timezone that is otherwise used to pick and "
-                               "render date and time values: your computer's timezone.")
-    tz_offset = fields.Char(compute='_compute_tz_offset', string='Timezone offset', invisible=True)
     minutes_slot = fields.Char("Slot in mins.", required=True)
     lunch_start = fields.Float("Lunch Start")
     lunch_end = fields.Float("Lunch End")
@@ -41,35 +27,40 @@ class WebOnlineAppointment(models.Model):
         'calendar.alarm', 'web_online_appointment_alarm_calendar_event_rel',
         string='Reminders', ondelete="restrict")
     weekoff_ids = fields.Many2many("web.online.appointment.weekoff", string="Weekoff Days")
-
-    @api.depends('tz')
-    def _compute_tz_offset(self):
-        for partner in self:
-            partner.tz_offset = datetime.datetime.now(pytz.timezone(partner.tz or 'GMT')).strftime('%z')
-
-    # Gets local time in given format
-    def get_current_local_time():
-        local = datetime.datetime.now()
-        print ("Local:", local.strftime(TIME_FORMAT))
-
-    @api.model
-    def get_utc_date(self, date=None, timezone=None):
-        to_zone = pytz.timezone('UTC')
-        from_zone = pytz.timezone(timezone)
-        return from_zone.localize(date).astimezone(to_zone)
+    event_duration_minutes = fields.Integer('Event duration (minutes)', help="If not set the duration is all available")
 
     @api.model
     def get_tz_date(self, date=None, timezone=None):
         to_zone = pytz.timezone(timezone)
         from_zone = pytz.timezone('UTC')
         return from_zone.localize(date).astimezone(to_zone)
-
+    
+    @api.model
+    def get_utc_date(self, date=None, timezone=None):
+        to_zone = pytz.timezone('UTC')
+        from_zone = pytz.timezone(timezone)
+        return from_zone.localize(date).astimezone(to_zone)
+    
     @api.model
     def generate_calendar(self):
+        import sys;sys.path.append(r'/home/javier/eclipse/jee-2021/eclipse/plugins/org.python.pydev.core_10.1.4.202304151203/pysrc')
+        import pydevd;pydevd.settrace('127.0.0.1',port=9999)
+        user = self.env['res.users'].browse(self.env.uid)
+        tz = pytz.timezone(user.tz)
         for appointment in self:
-            start_date = datetime(year=appointment.start_date.year, month=appointment.start_date.month, day=appointment.start_date.day)
+            start_date = datetime(
+                                    year=appointment.start_date.year,
+                                    month=appointment.start_date.month,
+                                    day=appointment.start_date.day,
+#                                    hour=0,
+#                                    minute=0,
+#                                    second=0,
+#                                    tzinfo=tz
+                                )
+            start_date = tz.localize(start_date).astimezone(pytz.utc)
+#            start_date = tz.normalize(start_date).astimezone(pytz.utc)
             start_minutes = float(appointment.start_time) * 60
-            end_minutes = float(appointment.end_time) * 60 - appointment.space.event_duration_minutes
+            end_minutes = float(appointment.end_time) * 60
             min_slot = appointment.minutes_slot
             lunch_start_min = float(appointment.lunch_start) * 60
             lunch_end_min = float(appointment.lunch_end) * 60
@@ -82,18 +73,21 @@ class WebOnlineAppointment(models.Model):
                 stop = start_date + timedelta(minutes=end_minutes)
                 while start <= stop:
                     t1 = start
-                    t2 = t1 + timedelta(minutes=int(min_slot))
-                    utc_date1 = appointment.get_utc_date(t1, appointment.tz)
-                    utc_date2 = appointment.get_utc_date(t2, appointment.tz)
+                    if appointment.event_duration_minutes:
+                        t2 = t1 + timedelta(minutes=int(min_slot))
+                        duration = appointment.minutes_slot
+                    else:
+                        #Si no hay duración la reserva es para el servicio completo
+                        t2 = stop
+                        duration = False
                     lines = {
                         'line_id': appointment.id,
-                        'duration': appointment.minutes_slot,
-                        'start_datetime': fields.Datetime.to_string(utc_date1),
-                        'end_datetime': fields.Datetime.to_string(utc_date2),
+                        'duration': duration,
+                        'start_datetime': fields.Datetime.to_string(t1),
+                        'end_datetime': fields.Datetime.to_string(t2),
                         'space': appointment.space.id
-
                     }
-                    already_line = self.env['web.online.appointment.line'].sudo().search([('start_datetime', '=', fields.Datetime.to_string(utc_date1)), ('end_datetime', '=', fields.Datetime.to_string(utc_date2)), ('line_id', '=', appointment.id)])
+                    already_line = self.env['web.online.appointment.line'].sudo().search([('start_datetime', '=', fields.Datetime.to_string(t1)), ('end_datetime', '=', fields.Datetime.to_string(t2)), ('line_id', '=', appointment.id)])
                     if not already_line:
                         if appointment.holiday_ids:
                             create_line = False
@@ -101,10 +95,10 @@ class WebOnlineAppointment(models.Model):
                             for holiday in appointment.holiday_ids:
                                 sdrange = [holiday.jt_start_date+timedelta(days=x) for x in range((holiday.jt_end_date-holiday.jt_start_date).days + 1)]
                                 lst += sdrange
-                            if utc_date1.date() not in lst:
+                            if t1.date() not in lst:
                                 if appointment.weekoff_ids:
                                     weekoffdays = appointment.weekoff_ids.mapped('dayofweek')
-                                    if not str(utc_date1.date().weekday()) in weekoffdays:
+                                    if not str(t1.date().weekday()) in weekoffdays:
                                         create_line = True
                                 else:
                                     create_line = True
@@ -114,11 +108,12 @@ class WebOnlineAppointment(models.Model):
                                 self.env['web.online.appointment.line'].sudo().create(lines)
                         elif appointment.weekoff_ids:
                             weekoffdays = appointment.weekoff_ids.mapped('dayofweek')
-                            if str(utc_date1.date().weekday()) not in weekoffdays:
+                            if str(t1.date().weekday()) not in weekoffdays:
                                 self.env['web.online.appointment.line'].sudo().create(lines)
                         else:
                             self.env['web.online.appointment.line'].sudo().create(lines)
-                    start = t2
+#                    start = t2
+                    start = t1 + timedelta(minutes=int(min_slot))
                 if days == 0:
                     start_date = start_date + timedelta(days=days + 1)
                 else:
@@ -203,12 +198,12 @@ class WebOnlineAppointmentLine(models.Model):
                 self.duration = 0.0
                 raise ValidationError(_('Ending date cannot be set before starting date or equal to starting date.'))
 
-    @api.model
-    def create(self, vals):
-        # compute duration, if not given
-        if not vals.get('duration'):
-            vals['duration'] = self._get_duration(vals['start_datetime'], vals['end_datetime'])
-        return super(WebOnlineAppointmentLine, self).create(vals)
+#    @api.model
+#    def create(self, vals):
+#        # compute duration, if not given
+#        if not vals.get('duration'):
+#            vals['duration'] = self._get_duration(vals['start_datetime'], vals['end_datetime'])
+#        return super(WebOnlineAppointmentLine, self).create(vals)
 
     @api.model
     def _get_duration(self):

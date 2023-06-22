@@ -140,7 +140,7 @@ msgstr "Agenda"
 #. module: web_online_appointment_resource
 #: model:ir.ui.menu,name:web_online_appointment_resource.menu_exception_calendar_submenu
 msgid "Calendar Configuration"
-msgstr "Configuración de la agenda"
+msgstr "Ajustes de la agenda"
 
 #. module: web_online_appointment_resource
 #: model:ir.model,name:web_online_appointment_resource.model_calendar_event
@@ -178,7 +178,7 @@ msgstr "Conpañía"
 #. module: web_online_appointment_resource
 #: model:ir.ui.menu,name:web_online_appointment_resource.menu_apppointment_config
 msgid "Configuration"
-msgstr "Configuración"
+msgstr "Ajustes"
 
 #. module: web_online_appointment_resource
 #: model_terms:ir.ui.view,arch_db:web_online_appointment_resource.appointment_book
@@ -561,7 +561,7 @@ msgstr "NOS GUSTARÍA SABER DE TI"
 #: model_terms:ir.ui.view,arch_db:web_online_appointment_resource.view_web_online_appointment_form
 #: model_terms:ir.ui.view,arch_db:web_online_appointment_resource.view_web_online_appointment_tree
 msgid "Web Online Appointment"
-msgstr "Configuración de la agenda"
+msgstr "Ajustes de la agenda"
 
 #. module: web_online_appointment_resource
 #: model:ir.model,name:web_online_appointment_resource.model_web_online_appointment_holidays
