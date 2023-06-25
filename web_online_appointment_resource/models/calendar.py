@@ -43,8 +43,6 @@ class WebOnlineAppointment(models.Model):
     
     @api.model
     def generate_calendar(self):
-        import sys;sys.path.append(r'/home/javier/eclipse/jee-2021/eclipse/plugins/org.python.pydev.core_10.1.4.202304151203/pysrc')
-        import pydevd;pydevd.settrace('127.0.0.1',port=9999)
         user = self.env['res.users'].browse(self.env.uid)
         tz = pytz.timezone(user.tz)
         for appointment in self:
@@ -128,7 +126,7 @@ class WebOnlineAppointment(models.Model):
         lunch_end_min = float(self.lunch_end) * 60
         ex_slots = []
         for appointment in self:
-            for days in range(self.duration):
+            for days in range(appointment.duration):
                 if lunch_start_min and lunch_end_min:
                     ex_start = start_date + timedelta(minutes=lunch_start_min)
                     ex_stop = start_date + timedelta(minutes=lunch_end_min)

@@ -35,5 +35,9 @@
             <field name="name">Sunday</field>
             <field name="dayofweek">6</field>
         </record>
+        <record id="appointment_system_user" model="res.users">
+        	<field name="name">Appointment System User</field>
+        	<field name="login">Appointment System User</field>
+        </record>
     </data>
 </odoo>

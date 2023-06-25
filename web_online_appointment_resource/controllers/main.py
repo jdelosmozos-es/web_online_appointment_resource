@@ -103,7 +103,7 @@ class MemberAppointment(http.Controller):
         space = Space.browse(int(post.get('space_id')))
         calendar_id = line.line_id
         if calendar_id.event_duration_minutes:
-            stop_date = utc_date + timedelta(minutes=int(space.event_duration_minutes))
+            stop_date = utc_date + timedelta(minutes=int(calendar_id.event_duration_minutes))
         else:
             stop_date = line.end_datetime
         post['space'] = space
@@ -130,7 +130,7 @@ class MemberAppointment(http.Controller):
             'num_persons': post.get('num_persons')
         }
         #TODO: ¿no_mail? si es false envía email de confirmación
-        user = request.env.ref('web_online_appointment_resource.group_appointment_manager').sudo().users[0]
+        user = request.env.ref('web_online_appointment_resource.appointment_system_user').sudo()
         #app = request.env['calendar.event'].sudo().with_context({'no_mail': True}).with_user(user).create(event)
         app = request.env['calendar.event'].sudo().with_user(user).create(event)
         #TODO: el state podría ser otro y acepted cuando esté confirmado.
