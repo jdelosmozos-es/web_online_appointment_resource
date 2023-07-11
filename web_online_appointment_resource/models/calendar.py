@@ -11,7 +11,7 @@ class WebOnlineAppointment(models.Model):
     _name = 'web.online.appointment'
     _description = 'Web Online Appointment'
 
-    name = fields.Char()
+    name = fields.Char(required=True)
     space = fields.Many2one(comodel_name='appointment.space', required=True)
     capacity = fields.Integer(related='space.capacity')
     minutes_slot = fields.Char("Slot in mins.", required=True)
@@ -21,7 +21,7 @@ class WebOnlineAppointment(models.Model):
     start_time = fields.Float("Start Time", required=True)
     end_time = fields.Float("End TIme", required=True)
     duration = fields.Integer('Duration in days', required=True)
-    calendar_line_ids = fields.One2many('web.online.appointment.line', 'line_id', 'Calendar Lines', copy=True)
+    calendar_line_ids = fields.One2many('web.online.appointment.line', 'line_id', 'Calendar Lines')
     holiday_ids = fields.One2many('web.online.appointment.holidays', 'jt_calendar_id', 'Holidays')
     alarm_ids = fields.Many2many(
         'calendar.alarm', 'web_online_appointment_alarm_calendar_event_rel',
@@ -29,6 +29,12 @@ class WebOnlineAppointment(models.Model):
     weekoff_ids = fields.Many2many("web.online.appointment.weekoff", string="Weekoff Days")
     event_duration_minutes = fields.Integer('Event duration (minutes)', help="If not set the duration is all available")
 
+    @api.returns('self', lambda value: value.id)
+    def copy(self, default=None):
+        default = dict(default or {})
+        default.update({'calendar_line_ids': False, 'duration': 0})
+        return super(WebOnlineAppointment, self).copy(default)
+    
     @api.model
     def get_tz_date(self, date=None, timezone=None):
         to_zone = pytz.timezone(timezone)
@@ -158,7 +164,42 @@ class WebOnlineAppointment(models.Model):
                 rec.generate_calendar()
         return appointment
 
+    @api.model
+    def get_time_slots(self, date, num_persons, space_id):
+        str_date = str(date)
+        sel_date = str_date.split("-")
+        day = sel_date[0]
+        month = sel_date[1]
+        year = sel_date[2]
+        end_date = datetime(int(year), int(month), int(day), 0,0,0)
+        end_date = end_date + timedelta(days=1)
 
+        Line = self.env['web.online.appointment.line']
+        calendar_lines = Line.sudo().search([('start_datetime', '>=', datetime.now()),
+                                             ('end_datetime','<',end_date),
+                                             ('space','=',int(space_id)),
+                                             ('is_open','=',True)])
+        available_lines = Line
+        for line in calendar_lines:
+            event_duration_minutes = line.line_id.event_duration_minutes
+            if event_duration_minutes:
+                event_end_time = line.start_datetime + timedelta(minutes=event_duration_minutes)
+            else:
+                event_end_time = line.end_datetime
+            event_lines = Line.sudo().search([
+                                        ('start_datetime','>=', line.start_datetime),
+                                        ('start_datetime','<=',event_end_time)
+                                    ])
+            if event_lines and min(event_lines.mapped('availability')) >= int(num_persons):
+                available_lines |= line
+        slots = []
+        for line in available_lines:
+            start_datetime = fields.Datetime.to_string(line.start_datetime)
+            date = line.line_id.get_tz_date(datetime.strptime(start_datetime, DEFAULT_SERVER_DATETIME_FORMAT), self.context['tz'])
+            if int(date.day) == int(day) and int(date.month) == int(month) and int(date.year) == int(year):
+                slots.append(str(date.time())[0:5])
+        return slots
+    
 class WebOnlineAppointmentLine(models.Model):
     _name = 'web.online.appointment.line'
     _description = 'Web Online Appointment Line'
@@ -171,10 +212,20 @@ class WebOnlineAppointmentLine(models.Model):
     capacity = fields.Integer(related='space.capacity')
     occupancy = fields.Integer(readonly=True)
     availability = fields.Integer(compute='_compute_availability', store=True)
+    is_open = fields.Boolean('Open', default=True)
+    is_past = fields.Boolean('Past', compute='_compute_availability')
+                            
+    _sql_constraints = [
+                            ('slot_uniq', 'unique (space,start_datetime)','There cannot be two slots at the same time for the same space.')
+                        ]
     
     @api.depends('occupancy')
     def _compute_availability(self):
         for record in self:
+            if record.start_datetime < fields.Datetime.now():
+                record.is_past = True
+            else:
+                record.is_past = False
             record.availability = record.capacity - record.occupancy
 
     @api.constrains('start_datetime', 'end_datetime')

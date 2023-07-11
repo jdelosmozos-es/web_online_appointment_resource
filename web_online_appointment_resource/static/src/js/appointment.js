@@ -23,13 +23,13 @@ odoo.define('web_online_appointment_resource.appointment', function(require) {
                 var month = e.date.getMonth() + 1
                 var year = e.date.getFullYear()
                 var selectedDate = day + '-' + month + '-' + year
-                //var calendar_id = $('#calendar_id').val();
+                var space_id = $('#space_id').val();
                 var num_persons = $('#num_persons').val();
                 $("#done_button").hide();
                 $("#selectedTime1").text('');
                 $("#selectedDate1").text(selectedDate);
                 ajax.jsonRpc('/calendar/timeslot', 'call', {
-//                    calendar_id: calendar_id,
+                    space_id: space_id,
                     selectedDate: selectedDate,
                     num_persons: num_persons
                     }).then(function (event_list) {

@@ -5,7 +5,6 @@ from odoo import fields, http
 from odoo.http import request
 from odoo.tools import DEFAULT_SERVER_DATETIME_FORMAT
 
-
 class MemberAppointment(http.Controller):
 
     @http.route('/appointment', auth="public", website=True)
@@ -14,7 +13,7 @@ class MemberAppointment(http.Controller):
         if availabilities:
             max_capacity = availabilities[0].availability
         else:
-            pass
+            max_capacity = 0
             # decir que no hay fechas disponibles
         return request.render('web_online_appointment_resource.appointment_intro_persons', {'max_capacity': max_capacity})
             
@@ -27,7 +26,7 @@ class MemberAppointment(http.Controller):
         num_persons = int(post.get('num_persons'))
         if num_persons > max_capacity:
             return self.show_persons_input()
-        lines = request.env['web.online.appointment.line'].sudo().search([('availability', '>', num_persons)])
+        lines = request.env['web.online.appointment.line'].sudo().search([('availability', '>=', num_persons)])
         spaces = lines.mapped('space')
         return request.render('web_online_appointment_resource.appointment_select_space', {'spaces': spaces, 'num_persons': num_persons})
 
@@ -116,18 +115,18 @@ class MemberAppointment(http.Controller):
                 'phone': post.get('phone'),
                 'tz': post.get('timezone'),
             })
+        management_user = request.env.ref('web_online_appointment_resource.appointment_manager_user').sudo()
         event = {
-#                'name': '%s-%s' % (post.get('first_name'), post.get('start_datetime')),
             'name': '%s %s %spax %s' % (post.get('name').split(" ")[0], post.get('start_datetime'),post.get('num_persons'),space.name),
-            'partner_ids': [(6, 0, [partner.id])],
-            # 'start_datetime': fields.Datetime.to_string(utc_date),
+            'partner_ids': [(6, 0, [partner.id,management_user.partner_id.id])],
 #            'duration': duration,
             'start': fields.Datetime.to_string(utc_date),
             'stop': fields.Datetime.to_string(stop_date),
             'alarm_ids': [(6, 0, calendar_id.alarm_ids.ids)],
             'resource': space.id,
             'description': post.get('comments'),
-            'num_persons': post.get('num_persons')
+            'num_persons': post.get('num_persons'),
+            'location': space.name,
         }
         #TODO: ¿no_mail? si es false envía email de confirmación
         user = request.env.ref('web_online_appointment_resource.appointment_system_user').sudo()
@@ -153,16 +152,20 @@ class MemberAppointment(http.Controller):
         return request.render('web_online_appointment_resource.appointment_thankyou', post)
 
     @http.route('/calendar/timeslot', type='json', auth='public')
-    def get_time_slots(self, selectedDate, num_persons):
+    def get_time_slots(self, selectedDate, num_persons, space_id):
         str_date = str(selectedDate)
         sel_date = str_date.split("-")
         day = sel_date[0]
         month = sel_date[1]
         year = sel_date[2]
-        end_date = datetime(int(year), int(month), int(day) + 1, 0,0,0)
+        end_date = datetime(int(year), int(month), int(day), 0,0,0)
+        end_date = end_date + timedelta(days=1)
 
         Line = request.env['web.online.appointment.line']
-        calendar_lines = Line.sudo().search([('start_datetime', '>=', datetime.now()),('end_datetime','<',end_date)])
+        calendar_lines = Line.sudo().search([('start_datetime', '>=', datetime.now()),
+                                             ('end_datetime','<',end_date),
+                                             ('space','=',int(space_id)),
+                                             ('is_open','=',True)])
         available_lines = Line
         for line in calendar_lines:
             event_duration_minutes = line.line_id.event_duration_minutes
@@ -174,7 +177,7 @@ class MemberAppointment(http.Controller):
                                         ('start_datetime','>=', line.start_datetime),
                                         ('start_datetime','<=',event_end_time)
                                     ])
-            if event_lines and min(event_lines.mapped('availability')) > int(num_persons):
+            if event_lines and min(event_lines.mapped('availability')) >= int(num_persons):
                 available_lines |= line
         slots = []
         for line in available_lines:

@@ -6,3 +6,4 @@ access_web_online_appointment_weekoff,access_web_online_appointment_weekoff,mode
 access_resource_appointment_space_user,access.resource.appointment.space.user,model_appointment_space,base.group_user,1,1,0,0
 access_resource_appointment_space_manager,access.resource.appointment.space.manager,model_appointment_space,group_appointment_manager,1,1,1,1
 access_resource_resource_manager,access.resource.appointment.resource,resource.model_resource_resource,group_appointment_manager,1,1,1,1
+access_web_appointment_close_service_wizard,access.web.appointment.close.service.wizard,model_web_appointment_close_service_wizard,base.group_user,1,1,1,1

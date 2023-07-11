@@ -13,11 +13,12 @@
     'depends': ['website', 'mail', 'calendar', 'contacts'], #, 'sale', 'stock', 'website_payment'],
     'data': [
         'data/appointment_data.xml',
-        'security/ir.model.access.csv',
         'security/security.xml',
+        'security/ir.model.access.csv',
         'views/web_online_appointment_view.xml',
         'views/resource_view.xml',
         'views/appointment.xml',
+        'wizard/close_service_wizard_view.xml',
     ],
     'assets': {
         'web.assets_frontend': [
@@ -27,6 +28,9 @@
             'web_online_appointment_resource/static/lib/datetime/css/datepicker.css',
             'web_online_appointment_resource/static/lib/datetime/js/bootstrap-datepicker.js',
         ],
+        'web.assets_backend': [
+            'web_online_appointment_resource/client_action/client_action.js',
+        ]
     },
     'installable': True,
     'auto_install': False,

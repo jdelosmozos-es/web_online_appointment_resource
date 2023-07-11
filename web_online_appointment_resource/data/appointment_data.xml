@@ -39,5 +39,9 @@
         	<field name="name">Appointment System User</field>
         	<field name="login">Appointment System User</field>
         </record>
+        <record id="appointment_manager_user" model="res.users">
+        	<field name="name">Appointment Manager User</field>
+        	<field name="login">Appointment Manager User</field>
+        </record>
     </data>
 </odoo>

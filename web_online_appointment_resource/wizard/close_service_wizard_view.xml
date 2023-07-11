@@ -1,0 +1,25 @@
+<odoo>
+	<data>
+		<record id="close_service_form_view" model='ir.ui.view'>
+			<field name="name">close.service.form.view</field>
+			<field name="model">web.appointment.close.service.wizard</field>
+			<field name="arch" type="xml">
+				<form>
+					<span attrs="{'invisible': [('calendars_domain','=','[]')]}">Select the service to close.</span>
+					<span attrs="{'invisible': [('calendars_domain','!=','[]')]}">There is no service currently running.</span>
+					<group>
+						<field name="name" invisible="1"/>
+						<field name="calendars_domain" invisible="1"/>
+						<field name="calendars" domain="calendars_domain" widget="many2many_checkboxes" attrs="{'invisible': [('calendars_domain','=','[]')]}"/>
+					</group>
+					<footer>
+		        		<button type="object" class="oe_highlight" name="action_close_service" attrs="{'invisible': [('calendars_domain','=','[]')]}">
+		        			Accept
+		        		</button>
+		        		<button string="Cancel"  special="cancel"/>
+		        	</footer>
+				</form>
+			</field>
+		</record>
+	</data>
+</odoo>
