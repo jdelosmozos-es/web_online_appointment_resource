@@ -7,8 +7,6 @@ class CloseServiceWizard(models.TransientModel):
     _name='web.appointment.close.service.wizard'
     
     def _get_calendars(self):
-        import sys;sys.path.append(r'/home/javier/eclipse/jee-2021/eclipse/plugins/org.python.pydev.core_10.1.4.202304151203/pysrc')
-        import pydevd;pydevd.settrace('127.0.0.1',port=9999)
         today = fields.Datetime.today().date()
         now = fields.Datetime.now()
         user = self.env['res.users'].browse(self.env.uid)
@@ -17,7 +15,8 @@ class CloseServiceWizard(models.TransientModel):
         now_float = now_time.hour + now_time.minute/60 + now_time.second/3600
         calendars = self.env['web.online.appointment'].search([
                 ('start_date','<=',today),('start_time','<=',now_float),('end_time','>=',now_float)
-            ]).filtered(lambda x: (x.start_date + timedelta(days=x.duration-1)) >= today)
+            ]).filtered(lambda x: (x.start_date + timedelta(days=x.duration-1)) >= today)\
+            .filtered(lambda x: today in {y.date() for y in x.calendar_line_ids.mapped('start_datetime')})
         return calendars
     
     name = fields.Char()
@@ -48,7 +47,7 @@ class CloseServiceWizard(models.TransientModel):
                     'type': 'ir.actions.client',
                     'tag': 'action_demo',
                     'params': {
-                        'resources': self.calendars.mapped('space').ids,
+                        'resources': lines.mapped('start_datetime'),
                     },
                     'target': 'new'
                 }

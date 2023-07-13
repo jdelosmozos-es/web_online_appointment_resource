@@ -27,6 +27,9 @@
                                     <field name="end_time" widget="float_time" />
                                     <field name="duration" />
                                 </group>
+                                <group>
+                                	<field name="instructions"/>
+                                </group>
                             </group>
                             <group>
                                 <field name='calendar_line_ids' nolabel="1">
@@ -86,6 +89,14 @@
 	    <field name="target">self</field>
 	</record>
 	
+	<record id="action_booking_wizard" model="ir.actions.act_window">
+        <field name="name">Booking wizard</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">web.appointment.booking.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+	
 	<record id="action_close_service" model="ir.actions.act_window">
         <field name="name">Close service</field>
         <field name="type">ir.actions.act_window</field>
@@ -94,11 +105,13 @@
         <field name="target">new</field>
     </record>
     
+    web.appointment.booking.wizard
+    
     <menuitem id="menu_apppointment_calendar" name="My Appointments" sequence="1" />
     <menuitem id="menu_apppointment_calendar_second_menu" parent="menu_apppointment_calendar" name="Calendar" sequence="1" action="calendar.action_calendar_event" />
     <menuitem id="menu_apppointment_config" name="Configuration" sequence="2" parent="menu_apppointment_calendar" />
     <menuitem id="menu_exception_calendar_submenu" name="Calendar Configuration" parent="menu_apppointment_config" action="web_online_appointment_resource.action_appointmnet_calendar" sequence="1" />
-    <menuitem id="menu_new_booking" name="New booking" parent="menu_apppointment_calendar" action="web_online_appointment_resource.action_new_booking" sequence="3" />
+    <menuitem id="menu_new_booking" name="New booking" parent="menu_apppointment_calendar" action="web_online_appointment_resource.action_booking_wizard" sequence="3" />
     <menuitem id="menu_close_service" name="Close service" parent="menu_apppointment_calendar" action="web_online_appointment_resource.action_close_service" sequence="4" />
 
 </odoo>

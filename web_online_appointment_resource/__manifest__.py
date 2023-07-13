@@ -19,6 +19,7 @@
         'views/resource_view.xml',
         'views/appointment.xml',
         'wizard/close_service_wizard_view.xml',
+        'wizard/booking_wizard_view.xml',
     ],
     'assets': {
         'web.assets_frontend': [

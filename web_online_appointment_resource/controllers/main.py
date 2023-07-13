@@ -117,7 +117,8 @@ class MemberAppointment(http.Controller):
             })
         management_user = request.env.ref('web_online_appointment_resource.appointment_manager_user').sudo()
         event = {
-            'name': '%s %s %spax %s' % (post.get('name').split(" ")[0], post.get('start_datetime'),post.get('num_persons'),space.name),
+#            'name': '%s %s %spax %s' % (post.get('name').split(" ")[0], post.get('start_datetime'),post.get('num_persons'),space.name),
+            'name': '%s %spax %s' % (post.get('name').split(" ")[0],post.get('num_persons'),space.name),
             'partner_ids': [(6, 0, [partner.id,management_user.partner_id.id])],
 #            'duration': duration,
             'start': fields.Datetime.to_string(utc_date),
@@ -153,6 +154,7 @@ class MemberAppointment(http.Controller):
 
     @http.route('/calendar/timeslot', type='json', auth='public')
     def get_time_slots(self, selectedDate, num_persons, space_id):
+        #FIXME llamar al método de web.online.appointment
         str_date = str(selectedDate)
         sel_date = str_date.split("-")
         day = sel_date[0]
@@ -172,7 +174,7 @@ class MemberAppointment(http.Controller):
             if event_duration_minutes:
                 event_end_time = line.start_datetime + timedelta(minutes=event_duration_minutes)
             else:
-                event_end_time = line.end_datetime
+                event_end_time = line.line_id.get_last_time_in_date(datetime(int(year), int(month), int(day), 0,0,0).date())
             event_lines = Line.sudo().search([
                                         ('start_datetime','>=', line.start_datetime),
                                         ('start_datetime','<=',event_end_time)

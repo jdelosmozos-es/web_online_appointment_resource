@@ -1,0 +1,26 @@
+<odoo>
+	<record id="booking_wizard_form_view" model='ir.ui.view'>
+		<field name="name">booking.wizard.form.view</field>
+		<field name="model">web.appointment.booking.wizard</field>
+		<field name="arch" type="xml">
+			<form>
+				<group cols="2">
+					<field name="date" options="{'datepicker': {'minDate': 'now'}}"/>
+					<field name="space_domain" invisible="1"/>
+					<field name="space" domain="space_domain" attrs="{'invisible': [('date','=',False)]}" />
+					<field name="num_persons" attrs="{'invisible': [('space','=',False)]}" />
+					<field name="slot_domain" invisible="1" />
+					<field name="slot" domain="slot_domain" widget="radio" attrs="{'invisible': [('num_persons','=',0)]}" />
+					<field name="partner" attrs="{'invisible': [('slot','=',False)]}" />
+					<field name="comments"/>
+				</group>
+				<footer>
+		        	<button type="object" class="oe_highlight" name="action_book" attrs="{'invisible': [('partner','=',False)]}">
+		        			Accept
+		        	</button>
+		        	<button string="Cancel"  special="cancel"/>
+		        </footer>
+			</form>
+		</field>
+	</record>
+</odoo>

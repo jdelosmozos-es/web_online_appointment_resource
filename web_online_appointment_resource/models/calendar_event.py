@@ -1,7 +1,4 @@
 from odoo import fields, models, api
-from odoo.tools import DEFAULT_SERVER_DATETIME_FORMAT
-from datetime import datetime, timedelta
-
 class CalendarEvent(models.Model):
     _inherit = "calendar.event"
     
@@ -18,21 +15,32 @@ class CalendarEvent(models.Model):
     )
     num_persons = fields.Integer('Num. persons')
     state = fields.Selection(STATE_SELECTION, string='Status', compute='_compute_state')
+    instructions = fields.Text()
+    
+    '''
+    Quitar tentative de attendee: https://www.odoo.com/es_ES/forum/ayuda-1/how-to-remove-item-from-selection-94279
+    creada
+    confirmada ClientE
+    confirmada rest
+    confirmada ambos
+    cliente ha llegado
+    '''
     
     @api.depends('attendee_ids')
     def _compute_state(self):
         management_user = self.env.ref('web_online_appointment_resource.appointment_manager_user') #.sudo()
-        attendee_id = self.attendee_ids.filtered(lambda x: x.partner_id.id == management_user.partner_id.id)
-        if attendee_id:
-            self.state = attendee_id.state
-        else:
-            self.state = False
+        for record in self:
+            attendee_id = record.attendee_ids.filtered(lambda x: x.partner_id.id == management_user.partner_id.id)
+            if attendee_id:
+                record.state = attendee_id.state
+            else:
+                record.state = False
              
     def change_attendee_status(self, status, recurrence_update_setting):
         super(CalendarEvent, self).change_attendee_status(status, recurrence_update_setting)
         changer = self.attendee_ids.filtered(lambda x: x.partner_id == self.env.user.partner_id)
         mail_template = self.env.ref('web_online_appointment_resource.calendar_template_change_attendee_status', raise_if_not_found=False)
-        (self.attendee_ids - changer)._send_mail_to_attendees(mail_template, force_send=False)
+        (self.attendee_ids - changer)._send_mail_to_attendees(mail_template, force_send=True)
     
     def unlink(self):
         for record in self:

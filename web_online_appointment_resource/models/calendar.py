@@ -3,6 +3,7 @@
 from datetime import datetime, timedelta
 from odoo import api, fields, models, _
 from odoo.exceptions import ValidationError
+from odoo.tools import DEFAULT_SERVER_DATETIME_FORMAT
 import pytz
 
 TIME_FORMAT = '%Y-%m-%d %H:%M:%S'
@@ -28,7 +29,13 @@ class WebOnlineAppointment(models.Model):
         string='Reminders', ondelete="restrict")
     weekoff_ids = fields.Many2many("web.online.appointment.weekoff", string="Weekoff Days")
     event_duration_minutes = fields.Integer('Event duration (minutes)', help="If not set the duration is all available")
-
+    instructions = fields.Text()
+    
+    def get_last_time_in_date(self, date):
+        dates_lines = self.calendar_line_ids.filtered(lambda x: x.start_datetime.date() == date)
+        last_date_line = dates_lines.sorted(key=lambda x: x.end_datetime.time(),reverse=True)[0]
+        return last_date_line.end_datetime + timedelta(minutes=int(self.minutes_slot))
+        
     @api.returns('self', lambda value: value.id)
     def copy(self, default=None):
         default = dict(default or {})
@@ -192,12 +199,12 @@ class WebOnlineAppointment(models.Model):
                                     ])
             if event_lines and min(event_lines.mapped('availability')) >= int(num_persons):
                 available_lines |= line
-        slots = []
+        slots = Line
         for line in available_lines:
             start_datetime = fields.Datetime.to_string(line.start_datetime)
-            date = line.line_id.get_tz_date(datetime.strptime(start_datetime, DEFAULT_SERVER_DATETIME_FORMAT), self.context['tz'])
+            date = line.line_id.get_tz_date(datetime.strptime(start_datetime, DEFAULT_SERVER_DATETIME_FORMAT), self.env.context['tz'])
             if int(date.day) == int(day) and int(date.month) == int(month) and int(date.year) == int(year):
-                slots.append(str(date.time())[0:5])
+                slots += line
         return slots
     
 class WebOnlineAppointmentLine(models.Model):
@@ -218,6 +225,14 @@ class WebOnlineAppointmentLine(models.Model):
     _sql_constraints = [
                             ('slot_uniq', 'unique (space,start_datetime)','There cannot be two slots at the same time for the same space.')
                         ]
+    
+    def name_get(self):
+        result = []
+        Appointment = self.env['web.online.appointment']
+        for record in self:
+            date = Appointment.get_tz_date(record.start_datetime, self.env.context['tz'])
+            result.append((record.id, '%s - %s [%d]' % (date.time(), date.date(), record.availability)))
+        return result
     
     @api.depends('occupancy')
     def _compute_availability(self):
